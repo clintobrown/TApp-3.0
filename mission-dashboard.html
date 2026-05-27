@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mission Launch Sequence</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #05080f;
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    padding: 48px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-image: radial-gradient(ellipse 60% 40% at 50% 0%, rgba(0,200,255,0.07) 0%, transparent 70%);
+  }
+
+  h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: #00c8ff;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: #1e3a50;
+    margin-bottom: 36px;
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    max-width: 460px;
+  }
+
+  /* BASE — locked/dimmed */
+  .card {
+    background: linear-gradient(90deg, #0a1520 0%, #081018 100%);
+    border: 1px solid #0e2235;
+    border-left: 2px solid #0e2235;
+    padding: 14px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    cursor: not-allowed;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, background 0.3s, box-shadow 0.4s, opacity 0.3s;
+    animation: fadein 0.4s ease both;
+    opacity: 0.45;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.04s; }
+  .card:nth-child(2) { animation-delay: 0.08s; }
+  .card:nth-child(3) { animation-delay: 0.12s; }
+  .card:nth-child(4) { animation-delay: 0.16s; }
+  .card:nth-child(5) { animation-delay: 0.20s; }
+  .card:nth-child(6) { animation-delay: 0.24s; }
+  .card:nth-child(7) { animation-delay: 0.28s; }
+  .card:nth-child(8) { animation-delay: 0.32s; }
+  .card:nth-child(9) { animation-delay: 0.36s; }
+
+  @keyframes fadein {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(0,200,255,0.04) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  /* READY — prereqs met, can be tapped */
+  .card.ready {
+    opacity: 1;
+    cursor: pointer;
+    border: 2px solid #ff69b4;
+    background: linear-gradient(90deg, #0c1e30 0%, #081018 100%);
+    box-shadow: 0 0 20px rgba(0,200,255,0.12), 0 0 12px rgba(255,105,180,0.3), inset 0 0 20px rgba(0,200,255,0.04);
+    animation: fadein 0.4s ease both, ready-pulse 2.4s ease-in-out infinite;
+  }
+
+  .card.ready::before { opacity: 1; }
+  .card.ready .step-num { color: #00c8ff; }
+  .card.ready .card-label { color: #ffffff; }
+  .card.ready .arrow { color: #00c8ff; }
+
+  .card.ready:hover {
+    border-color: #ff90c8;
+    box-shadow: 0 0 32px rgba(0,200,255,0.2), 0 0 20px rgba(255,105,180,0.5), inset 0 0 24px rgba(0,200,255,0.06);
+  }
+
+  @keyframes ready-pulse {
+    0%, 100% { box-shadow: 0 0 20px rgba(0,200,255,0.12), 0 0 12px rgba(255,105,180,0.3), inset 0 0 20px rgba(0,200,255,0.04); }
+    50%       { box-shadow: 0 0 32px rgba(0,200,255,0.22), 0 0 22px rgba(255,105,180,0.55), inset 0 0 28px rgba(0,200,255,0.07); }
+  }
+
+  /* DONE — completed */
+  .card.done {
+    opacity: 1;
+    cursor: pointer;
+    border-left-color: #00ff9d;
+    border-color: rgba(0,255,157,0.25);
+    background: linear-gradient(90deg, #071510 0%, #060e0a 100%);
+    box-shadow: 0 0 16px rgba(0,255,157,0.07), inset 0 0 20px rgba(0,255,157,0.03);
+    animation: none;
+  }
+
+  .card.done::before {
+    background: linear-gradient(90deg, rgba(0,255,157,0.05) 0%, transparent 60%);
+    opacity: 1;
+  }
+
+  .card.done .step-num { color: #00ff9d; }
+  .card.done .card-label { color: #00ff9d; }
+  .card.done .prereqs-label { color: rgba(0,255,157,0.45); }
+  .card.done .arrow { color: #00ff9d; animation: none; }
+  .card.done .task-complete { display: flex; }
+  .card.done .prereqs { display: none; }
+
+  .card.done:hover {
+    box-shadow: 0 0 26px rgba(0,255,157,0.13), inset 0 0 24px rgba(0,255,157,0.04);
+    border-color: rgba(0,255,157,0.4);
+  }
+
+  .step-num {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1a3a52;
+    min-width: 28px;
+    padding-top: 2px;
+    letter-spacing: 0.05em;
+    transition: color 0.2s;
+  }
+
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .card-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: #4a6a80;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .prereqs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .prereqs-label {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: #ff8c35;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .task-complete {
+    display: none;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: #00ff9d;
+    text-transform: uppercase;
+  }
+
+  .task-complete::before { content: '✓ '; font-weight: bold; }
+
+  .arrow {
+    font-size: 10px;
+    color: #0e2235;
+    transition: color 0.2s, transform 0.2s;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  /* Launch card inherits all states, just gets extra margin */
+  .card.launch { margin-top: 8px; }
+
+  /* Override arrow for launch when ready */
+  .card.launch.ready .arrow { animation: pulse-arrow 1.6s ease-in-out infinite; }
+
+  @keyframes pulse-arrow {
+    0%, 100% { opacity: 1; transform: translateX(0); }
+    50%       { opacity: 0.4; transform: translateX(4px); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Mission Launch Sequence</h1>
+<div class="subtitle">// PRE-LAUNCH SEQUENCE · TRK-0047</div>
+
+<div class="cards" id="cards">
+
+  <div class="card" data-id="1" data-prereqs="">
+    <span class="step-num">01</span>
+    <div class="card-body">
+      <span class="card-label">Check SW</span>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="2" data-prereqs="1">
+    <span class="step-num">02</span>
+    <div class="card-body">
+      <span class="card-label">New SW Available / Begin Download</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: 01</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="3" data-prereqs="">
+    <span class="step-num">03</span>
+    <div class="card-body">
+      <span class="card-label">Download Trip Info</span>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="4" data-prereqs="1,2,3">
+    <span class="step-num">04</span>
+    <div class="card-body">
+      <span class="card-label">Run System Checks</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: 01, 02, 03</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="5" data-prereqs="">
+    <span class="step-num">05</span>
+    <div class="card-body">
+      <span class="card-label">Calibrate Sensors</span>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="6" data-prereqs="1,2,3,4,5">
+    <span class="step-num">06</span>
+    <div class="card-body">
+      <span class="card-label">Start Mission</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: ALL PRIOR TASKS</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="7" data-prereqs="1,2,3,4,5,6">
+    <span class="step-num">07</span>
+    <div class="card-body">
+      <span class="card-label">Authorize Truck</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: ALL PRIOR TASKS</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card" data-id="8" data-prereqs="1,2,3,4,5,6,7">
+    <span class="step-num">08</span>
+    <div class="card-body">
+      <span class="card-label">Pre-Launch Checks</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: ALL PRIOR TASKS</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶</span>
+  </div>
+
+  <div class="card launch" data-id="9" data-prereqs="1,2,3,4,5,6,7,8">
+    <span class="step-num">09</span>
+    <div class="card-body">
+      <span class="card-label">Launch</span>
+      <div class="prereqs"><span class="prereqs-label">Task Prerequisites: ALL PRIOR TASKS</span></div>
+      <div class="task-complete">Task Complete</div>
+    </div>
+    <span class="arrow">▶▶</span>
+  </div>
+
+</div>
+
+<script>
+  const cards = Array.from(document.querySelectorAll('.card'));
+
+  // ── Normal task logic ──────────────────────────────────────────
+  function getCompleted() {
+    return new Set(cards.filter(c => c.classList.contains('done')).map(c => c.dataset.id));
+  }
+
+  function updateStates() {
+    const completed = getCompleted();
+    cards.forEach(card => {
+      if (card.classList.contains('done')) return;
+      const prereqs = card.dataset.prereqs ? card.dataset.prereqs.split(',') : [];
+      card.classList.toggle('ready', prereqs.every(p => completed.has(p)));
+    });
+  }
+
+  // ── Secret tap sequence: 1,2,3,1,2,3,1,2,3,9 ─────────────────
+  let tapSeq = [];
+  const REQUIRED = ['1','2','3','1','2','3','1','2','3','9'];
+
+  cards.forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Secret sequence tracking (always, regardless of ready/done)
+      const id = card.dataset.id;
+      const nextExpected = REQUIRED[tapSeq.length];
+      if (id === nextExpected) {
+        tapSeq.push(id);
+        if (tapSeq.length === REQUIRED.length) {
+          tapSeq = [];
+          setTimeout(showCredModal, 50);
+          return;
+        }
+      } else {
+        // Reset if wrong card tapped
+        tapSeq = [];
+        if (id === REQUIRED[0]) tapSeq.push(id);
+      }
+
+      // Normal complete toggle
+      if (!card.classList.contains('ready') && !card.classList.contains('done')) return;
+      card.classList.toggle('done');
+      if (card.classList.contains('done')) card.classList.remove('ready');
+      updateStates();
+    });
+  });
+
+  updateStates();
+
+  // ── Credential modal ──────────────────────────────────────────
+  function showCredModal() {
+    document.getElementById('cred-overlay').style.display = 'flex';
+    document.getElementById('cred-input').value = '';
+    document.getElementById('cred-error').style.display = 'none';
+    setTimeout(() => document.getElementById('cred-input').focus(), 100);
+  }
+
+  function hideCred() {
+    document.getElementById('cred-overlay').style.display = 'none';
+  }
+
+  function checkCreds() {
+    const val = document.getElementById('cred-input').value;
+    if (val === 'GODMODE') {
+      hideCred();
+      showGodMode();
+    } else {
+      const err = document.getElementById('cred-error');
+      err.style.display = 'block';
+      document.getElementById('cred-input').value = '';
+      setTimeout(() => document.getElementById('cred-input').focus(), 50);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (document.getElementById('cred-overlay').style.display === 'flex' && e.key === 'Enter') checkCreds();
+    if (document.getElementById('cred-overlay').style.display === 'flex' && e.key === 'Escape') hideCred();
+  });
+
+  // ── God mode screen ───────────────────────────────────────────
+  function showGodMode() {
+    document.getElementById('god-screen').style.display = 'flex';
+  }
+
+  function exitGodMode() {
+    document.getElementById('god-screen').style.display = 'none';
+  }
+</script>
+
+<!-- CREDENTIAL MODAL -->
+<div id="cred-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:999; align-items:center; justify-content:center; backdrop-filter:blur(6px);">
+  <div style="background:#0a1520; border:1px solid #ff69b4; padding:36px 32px; width:90%; max-width:380px; display:flex; flex-direction:column; gap:18px; box-shadow:0 0 40px rgba(255,105,180,0.2);">
+    <div style="font-family:'Orbitron',sans-serif; font-size:12px; font-weight:700; letter-spacing:0.25em; color:#ff69b4; text-align:center; line-height:1.6;">ENTER MAINTENANCE<br>MODE CREDENTIALS</div>
+    <input id="cred-input" type="password" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+      style="background:#05080f; border:1px solid #1e3a50; color:#fff; font-family:'Share Tech Mono',monospace; font-size:16px; letter-spacing:0.2em; padding:12px 16px; outline:none; text-align:center; width:100%;"
+      placeholder="············">
+    <div id="cred-error" style="display:none; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.2em; color:#ff3b5c; text-align:center;">ACCESS DENIED</div>
+    <div style="display:flex; gap:10px;">
+      <button onclick="checkCreds()" style="flex:1; background:#ff69b4; border:none; color:#000; font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; letter-spacing:0.2em; padding:12px; cursor:pointer;">AUTHENTICATE</button>
+      <button onclick="hideCred()" style="background:transparent; border:1px solid #1e3a50; color:#4a6a80; font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:0.1em; padding:12px 16px; cursor:pointer;">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<!-- GOD MODE SCREEN -->
+<div id="god-screen" style="display:none; position:fixed; inset:0; background:#f0f0f0; z-index:1000; flex-direction:column; align-items:center; padding:48px 24px; overflow-y:auto;">
+  <div style="font-family:'Orbitron',sans-serif; font-size:13px; font-weight:900; letter-spacing:0.4em; color:#000; margin-bottom:4px;">MAINTENANCE MODE</div>
+  <div style="font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:0.2em; color:#888; margin-bottom:36px;">// G0D M0DE ACTIVE</div>
+
+  <div style="display:flex; flex-direction:column; gap:8px; width:100%; max-width:420px;">
+
+    <div class="mx-card" style="background:#fff; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#ccc; min-width:28px;">01</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#000; text-transform:uppercase; flex:1;">Reset All Tasks</span>
+      <span style="color:#bbb; font-size:10px;">▶</span>
+    </div>
+
+    <div class="mx-card" style="background:#fff; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#ccc; min-width:28px;">02</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#000; text-transform:uppercase; flex:1;">Reset Single Task</span>
+      <span style="color:#bbb; font-size:10px;">▶</span>
+    </div>
+
+    <div class="mx-card" style="background:#fff; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#ccc; min-width:28px;">03</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#000; text-transform:uppercase; flex:1;">Reset Back To Start Mission Task</span>
+      <span style="color:#bbb; font-size:10px;">▶</span>
+    </div>
+
+    <div class="mx-card" style="background:#fff; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#ccc; min-width:28px;">04</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#000; text-transform:uppercase; flex:1;">Take Stack To Idle</span>
+      <span style="color:#bbb; font-size:10px;">▶</span>
+    </div>
+
+    <div class="mx-card" style="background:#fff; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='#fff'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#ccc; min-width:28px;">05</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#000; text-transform:uppercase; flex:1;">Change Mission Type</span>
+      <span style="color:#bbb; font-size:10px;">▶</span>
+    </div>
+
+    <div class="mx-card" style="background:#000; border:2px solid #000; padding:16px 20px; cursor:pointer; display:flex; align-items:center; gap:16px; margin-top:8px; transition:background 0.15s;" onclick="exitGodMode()" onmouseover="this.style.background='#222'" onmouseout="this.style.background='#000'">
+      <span style="font-family:'Orbitron',sans-serif; font-size:11px; font-weight:700; color:#555; min-width:28px;">06</span>
+      <span style="font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:0.1em; color:#fff; text-transform:uppercase; flex:1;">Exit To Mere Mortal Mode</span>
+      <span style="color:#555; font-size:10px;">▶</span>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
